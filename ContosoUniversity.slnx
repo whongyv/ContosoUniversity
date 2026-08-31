@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/reference/">
+    <Project Path="reference/ContosoUniversity.Reference/ContosoUniversity.Reference.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ContosoUniversity.WebAPI/ContosoUniversity.WebAPI.csproj" />
+  </Folder>
+</Solution>

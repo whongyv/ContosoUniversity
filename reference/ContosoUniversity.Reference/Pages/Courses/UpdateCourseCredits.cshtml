@@ -1,0 +1,30 @@
+﻿@page
+@model ContosoUniversity.Reference.Pages.Courses.UpdateCourseCreditsModel
+@{
+    ViewBag.Title = "UpdateCourseCredits";
+}
+
+<h2>Update Course Credits</h2>
+
+@if (ViewData["RowsAffected"] == null)
+{
+    <form method="post">
+        <div class="form-actions no-color">
+            <p>
+                Enter a number to multiply every course's credits by: @Html.TextBox("multiplier")
+            </p>
+            <p>
+                <input type="submit" value="Update" class="btn btn-primary" />
+            </p>
+        </div>
+    </form>
+}
+@if (ViewData["RowsAffected"] != null)
+{
+    <p>
+        Number of rows updated: @ViewData["RowsAffected"]
+    </p>
+}
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
