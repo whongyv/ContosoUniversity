@@ -16,7 +16,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<PaginationResult<StudentListVM>>> GetStudents(
+        public async Task<ActionResult<PaginationResult<StudentVM>>> Get(
             [FromQuery] string sortOrder,
             [FromQuery] string searchString,
             [FromQuery][Range(1, int.MaxValue)] int pageIndex = 1,
@@ -45,8 +45,8 @@ namespace ContosoUniversity.WebAPI.Controllers
                 _ => query.OrderBy(s => s.LastName),
             };
 
-            return await PaginationResult<StudentListVM>.Create(pageIndex, pageSize,
-                query.Select(s => new StudentListVM
+            return await PaginationResult<StudentVM>.Create(pageIndex, pageSize,
+                query.Select(s => new StudentVM
                 {
                     ID = s.ID,
                     LastName = s.LastName,
@@ -57,7 +57,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // GET: api/Students/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<StudentDetailVM>> GetStudentById([FromRoute] int id)
+        public async Task<ActionResult<StudentDetailVM>> GetByID([FromRoute] int id)
         {
             var student = await _context.Students
                 .Where(s => s.ID == id)
@@ -85,18 +85,18 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // POST：api/Students
         [HttpPost]
-        public async Task<ActionResult<StudentDetailVM>> CreateStudent([FromBody] StudentCreateVM studentCreateVM)
+        public async Task<ActionResult<StudentDetailVM>> Post([FromBody] StudentVM studentVM)
         {
             var student = new Student
             {
-                LastName = studentCreateVM.LastName,
-                FirstMidName = studentCreateVM.FirstName,
-                EnrollmentDate = studentCreateVM.EnrollmentDate
+                LastName = studentVM.LastName,
+                FirstMidName = studentVM.FirstName,
+                EnrollmentDate = studentVM.EnrollmentDate
             };
 
             _context.Add(student);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetStudentById), new { id = student.ID }, new StudentDetailVM
+            return CreatedAtAction(nameof(GetByID), new { id = student.ID }, new StudentDetailVM
             {
                 ID = student.ID,
                 LastName = student.LastName,
@@ -106,6 +106,37 @@ namespace ContosoUniversity.WebAPI.Controllers
             });
         }
 
+        // PUT: api/Students/5
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Put([FromRoute] int id, [FromBody] StudentVM studentVM)
+        {
+            var student = await _context.Students.FindAsync(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
 
+            student.LastName = studentVM.LastName;
+            student.FirstMidName = studentVM.FirstName;
+            student.EnrollmentDate = studentVM.EnrollmentDate;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // DELETE: api/Students/5
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            var student = await _context.Students.FindAsync(id);
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            _context.Students.Remove(student);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
