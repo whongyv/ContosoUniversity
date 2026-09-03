@@ -1,6 +1,8 @@
 ﻿using ContosoUniversity.WebAPI.Data;
+using ContosoUniversity.WebAPI.Entities;
 using ContosoUniversity.WebAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace ContosoUniversity.WebAPI.Controllers
@@ -12,6 +14,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         private readonly SchoolContext _context = context;
         private readonly int _defaultPageSize = configuration.GetValue("PageSize", 3);
 
+        // GET: api/Students
         [HttpGet]
         public async Task<ActionResult<PaginationResult<StudentListVM>>> GetStudents(
             [FromQuery] string sortOrder,
@@ -47,9 +50,62 @@ namespace ContosoUniversity.WebAPI.Controllers
                 {
                     ID = s.ID,
                     LastName = s.LastName,
-                    FirstMidName = s.FirstMidName,
+                    FirstName = s.FirstMidName,
                     EnrollmentDate = s.EnrollmentDate
                 }));
         }
+
+        // GET: api/Students/5
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<StudentDetailVM>> GetStudentById([FromRoute] int id)
+        {
+            var student = await _context.Students
+                .Where(s => s.ID == id)
+                .Select(s => new StudentDetailVM
+                {
+                    ID = s.ID,
+                    LastName = s.LastName,
+                    FirstName = s.FirstMidName,
+                    EnrollmentDate = s.EnrollmentDate,
+                    Enrollments = s.Enrollments.Select(e => new EnrollmentVM
+                    {
+                        Course = e.Course.Title,
+                        Grade = e.Grade.ToString()
+                    }).ToList()
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return student;
+        }
+
+        // POST：api/Students
+        [HttpPost]
+        public async Task<ActionResult<StudentDetailVM>> CreateStudent([FromBody] StudentCreateVM studentCreateVM)
+        {
+            var student = new Student
+            {
+                LastName = studentCreateVM.LastName,
+                FirstMidName = studentCreateVM.FirstName,
+                EnrollmentDate = studentCreateVM.EnrollmentDate
+            };
+
+            _context.Add(student);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetStudentById), new { id = student.ID }, new StudentDetailVM
+            {
+                ID = student.ID,
+                LastName = student.LastName,
+                FirstName = student.FirstMidName,
+                EnrollmentDate = student.EnrollmentDate,
+                Enrollments = []
+            });
+        }
+
+
     }
 }
