@@ -14,4 +14,15 @@ namespace ContosoUniversity.WebAPI.ViewModels
         public string FirstName { get; set; }
         public DateTime EnrollmentDate { get; set; }
     }
+
+    public class StudentDetailVM : StudentVM
+    {
+        public List<StudentEnrollment> Enrollments { get; set; }
+    }
+
+    public class StudentEnrollment
+    {
+        public string Course { get; set; }
+        public string Grade { get; set; }
+    }
 }

@@ -1,4 +1,6 @@
 using ContosoUniversity.WebAPI.Data;
+using ContosoUniversity.WebAPI.Middlewares;
+using ContosoUniversity.WebAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,14 +13,22 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddScoped<StudentsService>();
+builder.Services.AddScoped<CoursesService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    //app.UseExceptionMiddleware();
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
+}
+else
+{
+    app.UseExceptionMiddleware();
 }
 
 using (var scope = app.Services.CreateScope())
