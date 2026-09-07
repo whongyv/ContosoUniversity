@@ -83,6 +83,21 @@ namespace ContosoUniversity.WebAPI.Controllers
             return student;
         }
 
+        // GET: api/Students/enrollment-date-groups
+        [HttpGet("enrollment-date-groups")]
+        public async Task<ActionResult<List<EnrollmentDateGroup>>> GetEnrollmentDateGroups()
+        {
+            return await _context.Students
+                .OrderBy(s => s.EnrollmentDate)
+                .GroupBy(s => s.EnrollmentDate)
+                .Select(g => new EnrollmentDateGroup
+                {
+                    EnrollmentDate = g.Key,
+                    StudentCount = g.Count()
+                })
+                .ToListAsync();
+        }
+
         // POST：api/Students
         [HttpPost]
         public async Task<ActionResult<StudentDetailVM>> Post([FromBody] StudentVM studentVM)
