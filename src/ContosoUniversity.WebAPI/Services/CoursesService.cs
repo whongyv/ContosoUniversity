@@ -33,7 +33,8 @@ namespace ContosoUniversity.WebAPI.Services
                     DepartmentID = c.DepartmentID,
                     Department = c.Department.Name
                 })
-                .FirstOrDefaultAsync(c => c.CourseID == courseID);
+                .FirstOrDefaultAsync(c => c.CourseID == courseID)
+                ?? throw new NotFoundException($"Course with ID {courseID} not found.");
 
             course.Enrollments = await context.Enrollments
                 .Where(e => e.CourseID == courseID)
@@ -49,11 +50,6 @@ namespace ContosoUniversity.WebAPI.Services
                 .Select(c => c.Instructors.Select(i => i.FullName).ToList())
                 .FirstOrDefaultAsync();
 
-            if (course == null)
-            {
-                throw new NotFoundException($"Course with ID {courseID} not found.");
-            }
-
             return course;
         }
 
@@ -64,10 +60,7 @@ namespace ContosoUniversity.WebAPI.Services
                 throw new NotFoundException($"Course with ID {courseVM.CourseID} already exists.");
             }
 
-            if (!await context.Departments.AnyAsync(d => d.DepartmentID == courseVM.DepartmentID))
-            {
-                throw new NotFoundException($"Department with ID {courseVM.DepartmentID} does not exist.");
-            }
+            await DepartmentExistsAsync(courseVM.DepartmentID);
 
             var course = new Course
             {
@@ -87,6 +80,40 @@ namespace ContosoUniversity.WebAPI.Services
                 Credits = course.Credits,
                 DepartmentID = course.DepartmentID
             };
+        }
+
+        public async Task EditAsync(int courseID, CourseVM courseVM)
+        {
+            var course = await FindCourseAsync(courseID);
+
+            await DepartmentExistsAsync(courseVM.DepartmentID);
+
+            course.Title = courseVM.Title;
+            course.Credits = courseVM.Credits;
+            course.DepartmentID = courseVM.DepartmentID;
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int courseID)
+        {
+            var course = await FindCourseAsync(courseID);
+            context.Courses.Remove(course);
+            await context.SaveChangesAsync();
+        }
+
+        private async Task<Course> FindCourseAsync(int courseID)
+        {
+            var course = await context.Courses.FindAsync(courseID)
+                ?? throw new NotFoundException($"Course with ID {courseID} not found.");
+            return course;
+        }
+
+        private async Task DepartmentExistsAsync(int departmentID)
+        {
+            if (!await context.Departments.AnyAsync(d => d.DepartmentID == departmentID))
+            {
+                throw new NotFoundException($"Department with ID {departmentID} does not exist.");
+            }
         }
     }
 }

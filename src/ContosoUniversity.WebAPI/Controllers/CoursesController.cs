@@ -37,5 +37,21 @@ namespace ContosoUniversity.WebAPI.Controllers
             var result = await service.CreateAsync(courseVM);
             return CreatedAtAction(nameof(GetByCourseID), new { courseID = result.CourseID }, result);
         }
+
+        // PUT: api/Courses/5
+        [HttpPut("{courseID:int}")]
+        public async Task<ActionResult> Put(int courseID, CourseVM courseVM)
+        {
+            await service.EditAsync(courseID, courseVM);
+            return NoContent();
+        }
+
+        // DELETE: api/Courses/5
+        [HttpDelete("{courseID:int}")]
+        public async Task<ActionResult> Delete(int courseID)
+        {
+            await service.DeleteAsync(courseID);
+            return NoContent();
+        }
     }
 }

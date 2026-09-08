@@ -42,7 +42,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // POST：api/Students
         [HttpPost]
-        public async Task<ActionResult<StudentVM>> Create([FromBody] StudentVM studentVM)
+        public async Task<ActionResult<StudentVM>> Post([FromBody] StudentVM studentVM)
         {
             var result = await service.CreateAsync(studentVM);
             return CreatedAtAction(nameof(GetByID), new { id = result.ID }, result);
@@ -50,7 +50,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // PUT: api/Students/5
         [HttpPut("{id:int}")]
-        public async Task<NoContentResult> Edit([FromRoute] int id, [FromBody] StudentVM studentVM)
+        public async Task<NoContentResult> Put([FromRoute] int id, [FromBody] StudentVM studentVM)
         {
             await service.EditAsync(id, studentVM);
             return NoContent();

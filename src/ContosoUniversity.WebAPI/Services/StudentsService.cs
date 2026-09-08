@@ -99,9 +99,7 @@ namespace ContosoUniversity.WebAPI.Services
 
         public async Task EditAsync(int id, StudentVM studentVM)
         {
-            var student = await context.Students.FindAsync(id)
-                ?? throw new NotFoundException($"Student with ID {id} not found.");
-
+            var student = await FindStudentAsync(id);
             student.LastName = studentVM.LastName;
             student.FirstMidName = studentVM.FirstName;
             student.EnrollmentDate = studentVM.EnrollmentDate;
@@ -110,11 +108,15 @@ namespace ContosoUniversity.WebAPI.Services
 
         public async Task DeleteAsync(int id)
         {
-            var student = await context.Students.FindAsync(id)
-               ?? throw new NotFoundException($"Student with ID {id} not found.");
-
+            var student = await FindStudentAsync(id);
             context.Students.Remove(student);
             await context.SaveChangesAsync();
+        }
+
+        private async Task<Student> FindStudentAsync(int id)
+        {
+            return await context.Students.FindAsync(id)
+                ?? throw new NotFoundException($"Student with ID {id} not found.");
         }
     }
 }
