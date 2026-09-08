@@ -18,13 +18,13 @@ namespace ContosoUniversity.WebAPI.Controllers
             )
         {
             pageSize = pageSize == 0 ? _defaultPageSize : pageSize;
-            var result = await service.GetAsync(pageIndex, pageSize);
+            var result = await service.GetPagedAsync(pageIndex, pageSize);
             return result;
         }
 
         // GET: api/Courses/5
         [HttpGet("{courseID:int}")]
-        public async Task<ActionResult<CourseDetailVM>> GetByCourseID(int courseID)
+        public async Task<ActionResult<CourseDetailVM>> Get(int courseID)
         {
             var result = await service.GetByCourseIDAsync(courseID);
             return result;
@@ -35,14 +35,22 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<CourseVM>> Post(CourseVM courseVM)
         {
             var result = await service.CreateAsync(courseVM);
-            return CreatedAtAction(nameof(GetByCourseID), new { courseID = result.CourseID }, result);
+            return CreatedAtAction(nameof(Get), new { courseID = result.CourseID }, result);
+        }
+
+        // POST: /api/Courses/actions/scale-credits
+        [HttpPost("actions/scale-credits")]
+        public async Task<ActionResult<int>> ScaleCredits([FromQuery][Required][Range(1, 5)] int multiplier)
+        {
+            var updatedCount = await service.ScaleCreditsAsync(multiplier);
+            return updatedCount;
         }
 
         // PUT: api/Courses/5
         [HttpPut("{courseID:int}")]
         public async Task<ActionResult> Put(int courseID, CourseVM courseVM)
         {
-            await service.EditAsync(courseID, courseVM);
+            await service.UpdateAsync(courseID, courseVM);
             return NoContent();
         }
 

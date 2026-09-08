@@ -8,17 +8,19 @@ namespace ContosoUniversity.WebAPI.Services
 {
     public class StudentsService(SchoolContext context)
     {
-        public async Task<PaginationResult<StudentVM>> GetAsync(
+        public async Task<PaginationResult<StudentVM>> GetPagedAsync(
             string sortOrder, string searchString, int pageIndex, int pageSize)
         {
             var query = context.Students.AsQueryable();
 
+            // Build the query based on the search string
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(s => s.LastName.Contains(searchString)
                     || s.FirstMidName.Contains(searchString));
             }
 
+            // Determine the sort order
             if (string.IsNullOrEmpty(sortOrder))
             {
                 sortOrder = "name";
@@ -63,7 +65,7 @@ namespace ContosoUniversity.WebAPI.Services
             return student;
         }
 
-        public async Task<List<EnrollmentDateGroup>> GetEnrollmentDateGroupsAsync()
+        public async Task<List<EnrollmentDateGroup>> GetEnrollmentStatsAsync()
         {
             return await context.Students
                 .OrderBy(s => s.EnrollmentDate)
@@ -97,9 +99,9 @@ namespace ContosoUniversity.WebAPI.Services
             };
         }
 
-        public async Task EditAsync(int id, StudentVM studentVM)
+        public async Task UpdateAsync(int id, StudentVM studentVM)
         {
-            var student = await FindStudentAsync(id);
+            var student = await GetStudentOrThrowAsync(id);
             student.LastName = studentVM.LastName;
             student.FirstMidName = studentVM.FirstName;
             student.EnrollmentDate = studentVM.EnrollmentDate;
@@ -108,12 +110,12 @@ namespace ContosoUniversity.WebAPI.Services
 
         public async Task DeleteAsync(int id)
         {
-            var student = await FindStudentAsync(id);
+            var student = await GetStudentOrThrowAsync(id);
             context.Students.Remove(student);
             await context.SaveChangesAsync();
         }
 
-        private async Task<Student> FindStudentAsync(int id)
+        private async Task<Student> GetStudentOrThrowAsync(int id)
         {
             return await context.Students.FindAsync(id)
                 ?? throw new NotFoundException($"Student with ID {id} not found.");

@@ -20,23 +20,23 @@ namespace ContosoUniversity.WebAPI.Controllers
             )
         {
             pageSize = pageSize == 0 ? _defaultPageSize : pageSize;
-            var result = await service.GetAsync(sortOrder, searchString, pageIndex, pageSize);
+            var result = await service.GetPagedAsync(sortOrder, searchString, pageIndex, pageSize);
             return result;
         }
 
         // GET: api/Students/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<StudentVM>> GetByID([FromRoute] int id)
+        public async Task<ActionResult<StudentVM>> Get([FromRoute] int id)
         {
             var student = await service.GetByIDAsync(id);
             return student;
         }
 
-        // GET: api/Students/enrollment-date-groups
-        [HttpGet("enrollment-date-groups")]
-        public async Task<ActionResult<List<EnrollmentDateGroup>>> GetEnrollmentDateGroups()
+        // GET: api/Students/enrollment-stats
+        [HttpGet("enrollment-stats")]
+        public async Task<ActionResult<List<EnrollmentDateGroup>>> GetEnrollmentStats()
         {
-            var result = await service.GetEnrollmentDateGroupsAsync();
+            var result = await service.GetEnrollmentStatsAsync();
             return result;
         }
 
@@ -45,14 +45,14 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<StudentVM>> Post([FromBody] StudentVM studentVM)
         {
             var result = await service.CreateAsync(studentVM);
-            return CreatedAtAction(nameof(GetByID), new { id = result.ID }, result);
+            return CreatedAtAction(nameof(Get), new { id = result.ID }, result);
         }
 
         // PUT: api/Students/5
         [HttpPut("{id:int}")]
         public async Task<NoContentResult> Put([FromRoute] int id, [FromBody] StudentVM studentVM)
         {
-            await service.EditAsync(id, studentVM);
+            await service.UpdateAsync(id, studentVM);
             return NoContent();
         }
 

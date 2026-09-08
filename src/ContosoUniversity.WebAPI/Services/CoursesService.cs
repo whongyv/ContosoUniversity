@@ -8,7 +8,7 @@ namespace ContosoUniversity.WebAPI.Services
 {
     public class CoursesService(SchoolContext context)
     {
-        public async Task<PaginationResult<CourseVM>> GetAsync(int pageIndex, int pageSize)
+        public async Task<PaginationResult<CourseVM>> GetPagedAsync(int pageIndex, int pageSize)
         {
             return await PaginationResult<CourseVM>.Create(pageIndex, pageSize, context.Courses
                 .OrderBy(c => c.CourseID)
@@ -60,7 +60,7 @@ namespace ContosoUniversity.WebAPI.Services
                 throw new NotFoundException($"Course with ID {courseVM.CourseID} already exists.");
             }
 
-            await DepartmentExistsAsync(courseVM.DepartmentID);
+            await EnsureDepartmentExistsAsync(courseVM.DepartmentID);
 
             var course = new Course
             {
@@ -82,11 +82,11 @@ namespace ContosoUniversity.WebAPI.Services
             };
         }
 
-        public async Task EditAsync(int courseID, CourseVM courseVM)
+        public async Task UpdateAsync(int courseID, CourseVM courseVM)
         {
-            var course = await FindCourseAsync(courseID);
+            var course = await GetCourseOrThrowAsync(courseID);
 
-            await DepartmentExistsAsync(courseVM.DepartmentID);
+            await EnsureDepartmentExistsAsync(courseVM.DepartmentID);
 
             course.Title = courseVM.Title;
             course.Credits = courseVM.Credits;
@@ -96,19 +96,25 @@ namespace ContosoUniversity.WebAPI.Services
 
         public async Task DeleteAsync(int courseID)
         {
-            var course = await FindCourseAsync(courseID);
+            var course = await GetCourseOrThrowAsync(courseID);
             context.Courses.Remove(course);
             await context.SaveChangesAsync();
         }
 
-        private async Task<Course> FindCourseAsync(int courseID)
+        public Task<int> ScaleCreditsAsync(int multiplier)
+        {
+            var sql = $"UPDATE Courses SET Credits = Credits * {multiplier}";
+            return context.Database.ExecuteSqlRawAsync(sql);
+        }
+
+        private async Task<Course> GetCourseOrThrowAsync(int courseID)
         {
             var course = await context.Courses.FindAsync(courseID)
                 ?? throw new NotFoundException($"Course with ID {courseID} not found.");
             return course;
         }
 
-        private async Task DepartmentExistsAsync(int departmentID)
+        private async Task EnsureDepartmentExistsAsync(int departmentID)
         {
             if (!await context.Departments.AnyAsync(d => d.DepartmentID == departmentID))
             {
