@@ -19,13 +19,7 @@ namespace ContosoUniversity.WebAPI.ViewModels
 
     public class CourseDetailVM : CourseVM
     {
-        public List<CourseEnrollment> Enrollments { get; set; }
+        public List<StudentGrade> StudentGrades { get; set; }
         public List<string> Instructors { get; set; }
-    }
-
-    public class CourseEnrollment
-    {
-        public string Student { get; set; }
-        public string Grade { get; set; }
     }
 }

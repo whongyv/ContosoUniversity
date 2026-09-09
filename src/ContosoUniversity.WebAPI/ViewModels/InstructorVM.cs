@@ -2,7 +2,7 @@
 
 namespace ContosoUniversity.WebAPI.ViewModels
 {
-    public class StudentVM
+    public class InstructorVM
     {
         public int ID { get; set; }
         [Required]
@@ -12,11 +12,14 @@ namespace ContosoUniversity.WebAPI.ViewModels
         [Required]
         [StringLength(50, ErrorMessage = "First name cannot be longer than 50 characters.")]
         public string FirstName { get; set; }
-        public DateTime EnrollmentDate { get; set; }
+        public DateTime HireDate { get; set; }
+        public string Office { get; set; }
+        public List<InstructorCourse> Courses { get; set; }
     }
 
-    public class StudentDetailVM : StudentVM
+    public class InstructorCourse
     {
-        public List<CourseGrade> CourseGrades { get; set; }
+        public int CourseID { get; set; }
+        public string Title { get; set; }
     }
 }

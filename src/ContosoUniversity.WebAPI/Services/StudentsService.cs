@@ -53,10 +53,10 @@ namespace ContosoUniversity.WebAPI.Services
                      LastName = s.LastName,
                      FirstName = s.FirstMidName,
                      EnrollmentDate = s.EnrollmentDate,
-                     Enrollments = s.Enrollments.Select(e => new StudentEnrollment
+                     CourseGrades = s.Enrollments.Select(e => new CourseGrade
                      {
                          Course = e.Course.Title,
-                         Grade = e.Grade.ToString()
+                         Grade = e.Grade.HasValue ? e.Grade.ToString() : "No grade"
                      }).ToList()
                  })
                  .FirstOrDefaultAsync(s => s.ID == id)

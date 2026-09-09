@@ -36,9 +36,9 @@ namespace ContosoUniversity.WebAPI.Services
                 .FirstOrDefaultAsync(c => c.CourseID == courseID)
                 ?? throw new NotFoundException($"Course with ID {courseID} not found.");
 
-            course.Enrollments = await context.Enrollments
+            course.StudentGrades = await context.Enrollments
                 .Where(e => e.CourseID == courseID)
-                .Select(e => new CourseEnrollment
+                .Select(e => new StudentGrade
                 {
                     Student = e.Student.FullName,
                     Grade = e.Grade.ToString()
@@ -51,6 +51,18 @@ namespace ContosoUniversity.WebAPI.Services
                 .FirstOrDefaultAsync();
 
             return course;
+        }
+
+        public async Task<List<StudentGrade>> GetStudentGradesByCourseIdAsync(int courseID)
+        {
+            return await context.Enrollments
+                .Where(e => e.CourseID == courseID)
+                .Select(e => new StudentGrade
+                {
+                    Student = e.Student.FullName,
+                    Grade = e.Grade.HasValue ? e.Grade.ToString() : "No grade"
+                })
+                .ToListAsync();
         }
 
         public async Task<CourseVM> CreateAsync(CourseVM courseVM)

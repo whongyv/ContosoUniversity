@@ -30,6 +30,14 @@ namespace ContosoUniversity.WebAPI.Controllers
             return result;
         }
 
+        // GET: api/Courses/5/student-grades
+        [HttpGet("{courseID:int}/student-grades")]
+        public async Task<ActionResult<List<StudentGrade>>> GetStudentGrades(int courseID)
+        {
+            var result = await service.GetStudentGradesByCourseIdAsync(courseID);
+            return result;
+        }
+
         // POST: api/Courses
         [HttpPost]
         public async Task<ActionResult<CourseVM>> Post(CourseVM courseVM)
