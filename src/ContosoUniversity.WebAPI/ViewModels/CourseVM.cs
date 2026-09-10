@@ -20,6 +20,7 @@ namespace ContosoUniversity.WebAPI.ViewModels
 
     public class CourseDetailVM : CourseVMBase
     {
+        public int DepartmentID { get; set; }
         public string Department { get; set; }
         public List<StudentGrade> StudentGrades { get; set; }
         public List<string> Instructors { get; set; }
@@ -27,11 +28,11 @@ namespace ContosoUniversity.WebAPI.ViewModels
 
     public class CreateCourseVM : CourseVMBase
     {
-        [Required]
         public int DepartmentID { get; set; }
     }
 
     public class UpdateCourseVM : CourseVMBase
     {
+        public int DepartmentID { get; set; }
     }
 }

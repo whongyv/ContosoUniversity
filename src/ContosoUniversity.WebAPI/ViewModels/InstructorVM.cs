@@ -4,7 +4,6 @@ namespace ContosoUniversity.WebAPI.ViewModels
 {
     public class InstructorVMBase
     {
-        public int ID { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -19,11 +18,13 @@ namespace ContosoUniversity.WebAPI.ViewModels
 
     public class InstructorListVM : InstructorVMBase
     {
+        public int ID { get; set; }
         public List<CourseBrief> CourseBriefs { get; set; }
     }
 
     public class InstructorDetailVM : InstructorVMBase
     {
+        public int ID { get; set; }
         public List<CourseBrief> CourseBriefs { get; set; }
     }
 
