@@ -8,16 +8,15 @@ namespace ContosoUniversity.WebAPI.Services
 {
     public class CoursesService(SchoolContext context)
     {
-        public async Task<PaginationResult<CourseVM>> GetPagedAsync(int pageIndex, int pageSize)
+        public async Task<PaginationResult<CourseListVM>> GetPagedAsync(int pageIndex, int pageSize)
         {
-            return await PaginationResult<CourseVM>.Create(pageIndex, pageSize, context.Courses
+            return await PaginationResult<CourseListVM>.Create(pageIndex, pageSize, context.Courses
                 .OrderBy(c => c.CourseID)
-                .Select(c => new CourseVM
+                .Select(c => new CourseListVM
                 {
                     CourseID = c.CourseID,
                     Title = c.Title,
                     Credits = c.Credits,
-                    DepartmentID = c.DepartmentID,
                     Department = c.Department.Name
                 }));
         }
@@ -65,7 +64,7 @@ namespace ContosoUniversity.WebAPI.Services
                 .ToListAsync();
         }
 
-        public async Task<CourseVM> CreateAsync(CourseVM courseVM)
+        public async Task<CourseDetailVM> CreateAsync(CreateCourseVM courseVM)
         {
             if (await context.Courses.AnyAsync(c => c.CourseID == courseVM.CourseID))
             {
@@ -85,16 +84,20 @@ namespace ContosoUniversity.WebAPI.Services
             context.Add(course);
             await context.SaveChangesAsync();
 
-            return new CourseVM
+            return new CourseDetailVM
             {
                 CourseID = course.CourseID,
                 Title = course.Title,
                 Credits = course.Credits,
-                DepartmentID = course.DepartmentID
+                DepartmentID = course.DepartmentID,
+                Department = (await context.Departments
+                                .FirstOrDefaultAsync(d => d.DepartmentID == course.DepartmentID))?.Name,
+                StudentGrades = [],
+                Instructors = []
             };
         }
 
-        public async Task UpdateAsync(int courseID, CourseVM courseVM)
+        public async Task UpdateAsync(int courseID, UpdateCourseVM courseVM)
         {
             var course = await GetCourseOrThrowAsync(courseID);
 

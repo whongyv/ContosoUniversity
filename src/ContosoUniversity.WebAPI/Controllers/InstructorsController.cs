@@ -12,7 +12,7 @@ namespace ContosoUniversity.WebAPI.Controllers
     {
         // GET: api/Instructors
         [HttpGet]
-        public async Task<ActionResult<PaginationResult<InstructorVM>>> Get(
+        public async Task<ActionResult<PaginationResult<InstructorListVM>>> Get(
             [FromQuery][Range(1, int.MaxValue)] int pageIndex = 1,
             [FromQuery][Range(1, 100)] int pageSize = 0
             )
@@ -24,7 +24,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // GET: api/Instructors/5/courses
         [HttpGet("{id}/courses")]
-        public async Task<ActionResult<List<CourseVM>>> GetCourses([FromRoute] int id)
+        public async Task<ActionResult<List<CourseListVM>>> GetCourses([FromRoute] int id)
         {
             var result = await service.GetCoursesByInstructorIDAsync(id);
             return result;
@@ -32,9 +32,17 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // GET: api/Instructors/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<InstructorVM>> Get([FromRoute] int id)
+        public async Task<ActionResult<InstructorDetailVM>> Get([FromRoute] int id)
         {
             var result = await service.GetByIDAsync(id);
+            return result;
+        }
+
+        // POST: api/Instructors
+        [HttpPost]
+        public async Task<ActionResult<InstructorDetailVM>> Post([FromBody] CreateInstructorVM instructorVM)
+        {
+            var result = await service.CreateAsync(instructorVM);
             return result;
         }
     }

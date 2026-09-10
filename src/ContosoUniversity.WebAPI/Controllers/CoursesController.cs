@@ -12,14 +12,14 @@ namespace ContosoUniversity.WebAPI.Controllers
     {
         // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<PaginationResult<CourseVM>>> Get(
+        public async Task<ActionResult<PaginationResult<CourseListVM>>> Get(
             [FromQuery][Range(1, int.MaxValue)] int pageIndex = 1,
             [FromQuery][Range(1, 100)] int pageSize = 0
             )
         {
             pageSize = pageSize == 0 ? _defaultPageSize : pageSize;
             var result = await service.GetPagedAsync(pageIndex, pageSize);
-            return result;
+            return Ok(result);
         }
 
         // GET: api/Courses/5
@@ -27,7 +27,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<CourseDetailVM>> Get(int courseID)
         {
             var result = await service.GetByCourseIDAsync(courseID);
-            return result;
+            return Ok(result);
         }
 
         // GET: api/Courses/5/student-grades
@@ -35,12 +35,12 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<List<StudentGrade>>> GetStudentGrades(int courseID)
         {
             var result = await service.GetStudentGradesByCourseIdAsync(courseID);
-            return result;
+            return Ok(result);
         }
 
         // POST: api/Courses
         [HttpPost]
-        public async Task<ActionResult<CourseVM>> Post(CourseVM courseVM)
+        public async Task<ActionResult<CourseDetailVM>> Post(CreateCourseVM courseVM)
         {
             var result = await service.CreateAsync(courseVM);
             return CreatedAtAction(nameof(Get), new { courseID = result.CourseID }, result);
@@ -51,12 +51,12 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<int>> ScaleCredits([FromQuery][Required][Range(1, 5)] int multiplier)
         {
             var updatedCount = await service.ScaleCreditsAsync(multiplier);
-            return updatedCount;
+            return Ok(updatedCount);
         }
 
         // PUT: api/Courses/5
         [HttpPut("{courseID:int}")]
-        public async Task<ActionResult> Put(int courseID, CourseVM courseVM)
+        public async Task<ActionResult> Put(int courseID, UpdateCourseVM courseVM)
         {
             await service.UpdateAsync(courseID, courseVM);
             return NoContent();

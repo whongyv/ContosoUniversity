@@ -8,7 +8,7 @@ namespace ContosoUniversity.WebAPI.Services
 {
     public class StudentsService(SchoolContext context)
     {
-        public async Task<PaginationResult<StudentVM>> GetPagedAsync(
+        public async Task<PaginationResult<StudentListVM>> GetPagedAsync(
             string sortOrder, string searchString, int pageIndex, int pageSize)
         {
             var query = context.Students.AsQueryable();
@@ -34,8 +34,8 @@ namespace ContosoUniversity.WebAPI.Services
                 _ => query.OrderBy(s => s.LastName),
             };
 
-            return await PaginationResult<StudentVM>.Create(pageIndex, pageSize,
-                query.Select(s => new StudentVM
+            return await PaginationResult<StudentListVM>.Create(pageIndex, pageSize,
+                query.Select(s => new StudentListVM
                 {
                     ID = s.ID,
                     LastName = s.LastName,
@@ -78,7 +78,7 @@ namespace ContosoUniversity.WebAPI.Services
                 .ToListAsync();
         }
 
-        public async Task<StudentVM> CreateAsync(StudentVM studentVM)
+        public async Task<StudentDetailVM> CreateAsync(CreateStudentVM studentVM)
         {
             var student = new Student
             {
@@ -90,16 +90,17 @@ namespace ContosoUniversity.WebAPI.Services
             context.Students.Add(student);
             await context.SaveChangesAsync();
 
-            return new StudentVM
+            return new StudentDetailVM
             {
                 ID = student.ID,
                 LastName = student.LastName,
                 FirstName = student.FirstMidName,
-                EnrollmentDate = student.EnrollmentDate
+                EnrollmentDate = student.EnrollmentDate,
+                CourseGrades = []
             };
         }
 
-        public async Task UpdateAsync(int id, StudentVM studentVM)
+        public async Task UpdateAsync(int id, UpdateStudentVM studentVM)
         {
             var student = await GetStudentOrThrowAsync(id);
             student.LastName = studentVM.LastName;

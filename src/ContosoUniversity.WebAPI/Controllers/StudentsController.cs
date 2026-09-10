@@ -12,24 +12,23 @@ namespace ContosoUniversity.WebAPI.Controllers
     {
         // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<PaginationResult<StudentVM>>> Get(
+        public async Task<ActionResult<PaginationResult<StudentListVM>>> Get(
             [FromQuery] string sortOrder,
             [FromQuery] string searchString,
             [FromQuery][Range(1, int.MaxValue)] int pageIndex = 1,
-            [FromQuery][Range(1, 100)] int pageSize = 0
-            )
+            [FromQuery][Range(1, 100)] int pageSize = 0)
         {
             pageSize = pageSize == 0 ? _defaultPageSize : pageSize;
             var result = await service.GetPagedAsync(sortOrder, searchString, pageIndex, pageSize);
-            return result;
+            return Ok(result);
         }
 
         // GET: api/Students/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<StudentVM>> Get([FromRoute] int id)
+        public async Task<ActionResult<StudentDetailVM>> Get([FromRoute] int id)
         {
-            var student = await service.GetByIDAsync(id);
-            return student;
+            var result = await service.GetByIDAsync(id);
+            return Ok(result);
         }
 
         // GET: api/Students/enrollment-stats
@@ -37,12 +36,12 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<List<EnrollmentDateGroup>>> GetEnrollmentStats()
         {
             var result = await service.GetEnrollmentStatsAsync();
-            return result;
+            return Ok(result);
         }
 
         // POST：api/Students
         [HttpPost]
-        public async Task<ActionResult<StudentVM>> Post([FromBody] StudentVM studentVM)
+        public async Task<ActionResult<StudentDetailVM>> Post([FromBody] CreateStudentVM studentVM)
         {
             var result = await service.CreateAsync(studentVM);
             return CreatedAtAction(nameof(Get), new { id = result.ID }, result);
@@ -50,7 +49,7 @@ namespace ContosoUniversity.WebAPI.Controllers
 
         // PUT: api/Students/5
         [HttpPut("{id:int}")]
-        public async Task<NoContentResult> Put([FromRoute] int id, [FromBody] StudentVM studentVM)
+        public async Task<NoContentResult> Put([FromRoute] int id, [FromBody] UpdateStudentVM studentVM)
         {
             await service.UpdateAsync(id, studentVM);
             return NoContent();
