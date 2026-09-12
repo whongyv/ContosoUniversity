@@ -16,6 +16,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<StudentsService>();
 builder.Services.AddScoped<CoursesService>();
 builder.Services.AddScoped<InstructorsService>();
+builder.Services.AddScoped<DepartmentsService>();
 
 var app = builder.Build();
 
