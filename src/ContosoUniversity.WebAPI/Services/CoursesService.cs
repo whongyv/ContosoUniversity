@@ -68,7 +68,7 @@ namespace ContosoUniversity.WebAPI.Services
         {
             if (await context.Courses.AnyAsync(c => c.CourseID == courseVM.CourseID))
             {
-                throw new NotFoundException($"Course with ID {courseVM.CourseID} already exists.");
+                throw new DuplicateKeyException($"Course with ID {courseVM.CourseID} already exists.");
             }
 
             await EnsureDepartmentExistsAsync(courseVM.DepartmentID);
@@ -133,7 +133,7 @@ namespace ContosoUniversity.WebAPI.Services
         {
             if (!await context.Departments.AnyAsync(d => d.DepartmentID == departmentID))
             {
-                throw new NotFoundException($"Department with ID {departmentID} does not exist.");
+                throw new ValidationException($"Department with ID {departmentID} does not exist.");
             }
         }
     }

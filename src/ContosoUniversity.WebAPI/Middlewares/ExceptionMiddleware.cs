@@ -15,21 +15,38 @@ namespace ContosoUniversity.WebAPI.Middlewares
             }
             catch (NotFoundException ex)
             {
-                httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-                httpContext.Response.ContentType = "application/json";
-                var problemDetails = new ProblemDetails
-                {
-                    Title = "Source not found",
-                    Detail = ex.Message,
-                    Status = StatusCodes.Status404NotFound,
-                    Instance = httpContext.Request.Path
-                };
-                var jsonOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                await httpContext.Response.WriteAsJsonAsync(problemDetails, jsonOptions);
+                await WriteProblemDetailsAsync(
+                    httpContext, StatusCodes.Status404NotFound, "Resource not found", ex.Message);
             }
+            catch (ValidationException ex)
+            {
+                await WriteProblemDetailsAsync(
+                    httpContext, StatusCodes.Status400BadRequest, "Validation error", ex.Message);
+            }
+            catch (DuplicateKeyException ex)
+            {
+                await WriteProblemDetailsAsync(
+                    httpContext, StatusCodes.Status409Conflict, "Duplicate key error", ex.Message);
+            }
+        }
+
+        private static async Task WriteProblemDetailsAsync(
+            HttpContext httpContext, int statusCode, string title, string detail)
+        {
+            httpContext.Response.StatusCode = statusCode;
+            httpContext.Response.ContentType = "application/json";
+            var problemDetails = new ProblemDetails
+            {
+                Title = title,
+                Detail = detail,
+                Status = statusCode,
+                Instance = httpContext.Request.Path
+            };
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, jsonOptions);
         }
     }
 

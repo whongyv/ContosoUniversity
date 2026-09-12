@@ -23,9 +23,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    //app.UseExceptionMiddleware();
-    app.UseDeveloperExceptionPage();
-    app.UseMigrationsEndPoint();
+    app.UseExceptionMiddleware();
+    //app.UseDeveloperExceptionPage();
+    //app.UseMigrationsEndPoint();
 }
 else
 {
