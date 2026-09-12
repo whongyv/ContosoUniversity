@@ -80,6 +80,7 @@ namespace ContosoUniversity.WebAPI.Services
             {
                 instructor.OfficeAssignment = new OfficeAssignment
                 {
+                    InstructorID = instructor.ID,
                     Location = instructorVM.Office
                 };
             }
@@ -124,9 +125,71 @@ namespace ContosoUniversity.WebAPI.Services
             };
         }
 
-        public void UpdateAsync(int id, UpdateInstructorVM instructorVM)
+        public async Task UpdateAsync(int id, UpdateInstructorVM instructorVM)
         {
+            var instructor = await GetInstructorOrThrowAsync(id);
 
+            instructor.LastName = instructorVM.LastName;
+            instructor.FirstMidName = instructorVM.FirstName;
+            instructor.HireDate = instructorVM.HireDate;
+
+            // Update office assignment
+            if (instructor.OfficeAssignment != null)
+            {
+                instructor.OfficeAssignment.Location = instructorVM.Office;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(instructorVM.Office))
+                {
+                    instructor.OfficeAssignment = new OfficeAssignment
+                    {
+                        InstructorID = instructor.ID,
+                        Location = instructorVM.Office
+                    };
+                }
+            }
+
+            // Associate courses with the instructor if any course IDs are provided
+            instructor.Courses = [];
+
+            if (instructorVM.CourseIDs.Count > 0)
+            {
+                await context.Courses.LoadAsync();
+
+                // Loop through the provided course IDs and associate them with the instructor
+                foreach (var courseID in instructorVM.CourseIDs)
+                {
+                    var course = await context.Courses.FindAsync(courseID);
+                    if (course != null)
+                    {
+                        instructor.Courses.Add(course);
+                    }
+                    else
+                    {
+                        throw new NotFoundException($"Course with ID {courseID} not found.");
+                    }
+                }
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var instructor = await GetInstructorOrThrowAsync(id);
+            context.Instructors.Remove(instructor);
+            await context.SaveChangesAsync();
+        }
+
+        private async Task<Instructor> GetInstructorOrThrowAsync(int id)
+        {
+            var instructor = await context.Instructors
+                .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
+                .FirstOrDefaultAsync(i => i.ID == id)
+                ?? throw new NotFoundException($"Instructor with ID {id} not found.");
+            return instructor;
         }
     }
 }

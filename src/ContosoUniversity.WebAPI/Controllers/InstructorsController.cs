@@ -19,7 +19,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         {
             pageSize = pageSize == 0 ? _defaultPageSize : pageSize;
             var result = await service.GetPagedAsync(pageIndex, pageSize);
-            return result;
+            return Ok(result);
         }
 
         // GET: api/Instructors/5/courses
@@ -27,7 +27,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<List<CourseListVM>>> GetCourses([FromRoute] int id)
         {
             var result = await service.GetCoursesByInstructorIDAsync(id);
-            return result;
+            return Ok(result);
         }
 
         // GET: api/Instructors/5
@@ -35,7 +35,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<InstructorDetailVM>> Get([FromRoute] int id)
         {
             var result = await service.GetByIDAsync(id);
-            return result;
+            return Ok(result);
         }
 
         // POST: api/Instructors
@@ -43,7 +43,23 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<InstructorDetailVM>> Post([FromBody] CreateInstructorVM instructorVM)
         {
             var result = await service.CreateAsync(instructorVM);
-            return result;
+            return CreatedAtAction(nameof(Get), new { id = result.ID }, result);
+        }
+
+        // PUT: api/Instructors/5
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put([FromRoute] int id, [FromBody] UpdateInstructorVM instructorVM)
+        {
+            await service.UpdateAsync(id, instructorVM);
+            return NoContent();
+        }
+
+        // DELETE: api/Instructors/5
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete([FromRoute] int id)
+        {
+            await service.DeleteAsync(id);
+            return NoContent();
         }
     }
 }
