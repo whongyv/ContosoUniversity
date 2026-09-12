@@ -28,10 +28,15 @@ namespace ContosoUniversity.WebAPI.Services
                 }));
         }
 
-        public async Task<List<CourseListVM>> GetCoursesByInstructorIDAsync(int insructorID)
+        public async Task<List<CourseListVM>> GetCoursesByInstructorIDAsync(int instructorID)
         {
+            if (await context.Instructors.AnyAsync(i => i.ID == instructorID))
+            {
+                throw new NotFoundException($"Instructor with ID {instructorID} not found.");
+            }
+
             return await context.Instructors
-                 .Where(i => i.ID == insructorID)
+                 .Where(i => i.ID == instructorID)
                  .SelectMany(i => i.Courses)
                  .Select(c => new CourseListVM
                  {
@@ -46,6 +51,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task<InstructorDetailVM> GetByIDAsync(int id)
         {
             var instructor = await context.Instructors
+                 .Where(i => i.ID == id)
                  .Select(i => new InstructorDetailVM
                  {
                      ID = i.ID,
@@ -60,7 +66,7 @@ namespace ContosoUniversity.WebAPI.Services
                             Title = c.Title,
                         }).ToList()
                  })
-                 .FirstOrDefaultAsync(i => i.ID == id)
+                 .FirstOrDefaultAsync()
                  ?? throw new NotFoundException($"Instructor with ID {id} not found.");
 
             return instructor;
@@ -121,7 +127,6 @@ namespace ContosoUniversity.WebAPI.Services
         {
             var instructor = await context.Instructors
                 .Include(i => i.OfficeAssignment)
-                .Include(i => i.Courses)
                 .FirstOrDefaultAsync(i => i.ID == id)
                 ?? throw new NotFoundException($"Instructor with ID {id} not found.");
             return instructor;
@@ -132,6 +137,7 @@ namespace ContosoUniversity.WebAPI.Services
             if (string.IsNullOrEmpty(office))
             {
                 instructor.OfficeAssignment = null;
+                return;
             }
 
             if (instructor.OfficeAssignment == null)

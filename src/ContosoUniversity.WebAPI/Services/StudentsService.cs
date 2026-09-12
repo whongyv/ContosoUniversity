@@ -47,6 +47,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task<StudentDetailVM> GetByIDAsync(int id)
         {
             var student = await context.Students
+                 .Where(s => s.ID == id)
                  .Select(s => new StudentDetailVM
                  {
                      ID = s.ID,
@@ -59,7 +60,7 @@ namespace ContosoUniversity.WebAPI.Services
                          Grade = e.Grade.HasValue ? e.Grade.ToString() : "No grade"
                      }).ToList()
                  })
-                 .FirstOrDefaultAsync(s => s.ID == id)
+                 .FirstOrDefaultAsync()
                  ?? throw new NotFoundException($"Student with ID {id} not found.");
 
             return student;
@@ -68,13 +69,13 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task<List<EnrollmentDateGroup>> GetEnrollmentStatsAsync()
         {
             return await context.Students
-                .OrderBy(s => s.EnrollmentDate)
                 .GroupBy(s => s.EnrollmentDate)
                 .Select(g => new EnrollmentDateGroup
                 {
                     EnrollmentDate = g.Key,
                     StudentCount = g.Count()
                 })
+                .OrderBy(s => s.EnrollmentDate)
                 .ToListAsync();
         }
 

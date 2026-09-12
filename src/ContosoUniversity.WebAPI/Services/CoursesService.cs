@@ -24,6 +24,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task<CourseDetailVM> GetByCourseIDAsync(int courseID)
         {
             var course = await context.Courses
+                .Where(c => c.CourseID == courseID)
                 .Select(c => new CourseDetailVM
                 {
                     CourseID = c.CourseID,
@@ -32,7 +33,7 @@ namespace ContosoUniversity.WebAPI.Services
                     DepartmentID = c.DepartmentID,
                     Department = c.Department.Name
                 })
-                .FirstOrDefaultAsync(c => c.CourseID == courseID)
+                .FirstOrDefaultAsync()
                 ?? throw new NotFoundException($"Course with ID {courseID} not found.");
 
             course.StudentGrades = await context.Enrollments
