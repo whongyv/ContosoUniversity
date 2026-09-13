@@ -119,7 +119,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task DeleteAsync(int id)
         {
             var instructor = await GetInstructorOrThrowAsync(id);
-            context.Instructors.Remove(instructor);
+            context.Remove(instructor);
             await context.SaveChangesAsync();
         }
 

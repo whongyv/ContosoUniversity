@@ -88,7 +88,7 @@ namespace ContosoUniversity.WebAPI.Services
                 EnrollmentDate = studentVM.EnrollmentDate
             };
 
-            context.Students.Add(student);
+            context.Add(student);
             await context.SaveChangesAsync();
 
             return new StudentDetailVM
@@ -113,7 +113,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task DeleteAsync(int id)
         {
             var student = await GetStudentOrThrowAsync(id);
-            context.Students.Remove(student);
+            context.Remove(student);
             await context.SaveChangesAsync();
         }
 

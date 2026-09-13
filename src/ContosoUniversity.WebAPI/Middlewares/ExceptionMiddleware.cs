@@ -1,5 +1,6 @@
 ﻿using ContosoUniversity.WebAPI.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace ContosoUniversity.WebAPI.Middlewares
@@ -27,6 +28,12 @@ namespace ContosoUniversity.WebAPI.Middlewares
             {
                 await WriteProblemDetailsAsync(
                     httpContext, StatusCodes.Status409Conflict, "Duplicate key error", ex.Message);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await WriteProblemDetailsAsync(
+                    httpContext, StatusCodes.Status409Conflict, "Concurrency conflict",
+                    "The record was modified or deleted by another user. Please reload the data and try again.");
             }
         }
 

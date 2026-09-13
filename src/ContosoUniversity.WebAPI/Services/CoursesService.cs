@@ -113,7 +113,7 @@ namespace ContosoUniversity.WebAPI.Services
         public async Task DeleteAsync(int courseID)
         {
             var course = await GetCourseOrThrowAsync(courseID);
-            context.Courses.Remove(course);
+            context.Remove(course);
             await context.SaveChangesAsync();
         }
 

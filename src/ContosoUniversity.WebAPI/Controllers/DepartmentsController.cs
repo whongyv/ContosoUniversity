@@ -1,4 +1,5 @@
-﻿using ContosoUniversity.WebAPI.Services;
+﻿using ContosoUniversity.WebAPI.Attributes;
+using ContosoUniversity.WebAPI.Services;
 using ContosoUniversity.WebAPI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -27,6 +28,7 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<DepartmentDetailVM>> Get([FromRoute] int departmentID)
         {
             var result = await service.GetByDepartmentIDAsync(departmentID);
+            HttpContext.Response.Headers.ETag = ETagHelper.Format(result.Token);
             return Ok(result);
         }
 
@@ -35,22 +37,28 @@ namespace ContosoUniversity.WebAPI.Controllers
         public async Task<ActionResult<DepartmentDetailVM>> Post([FromBody] CreateDepartmentVM departmentVM)
         {
             var result = await service.CreateAsync(departmentVM);
+            HttpContext.Response.Headers.ETag = ETagHelper.Format(result.Token);
             return CreatedAtAction(nameof(Get), new { departmentID = result.DepartmentID }, result);
         }
 
         // PUT: api/Departments/5
         [HttpPut("{departmentID:int}")]
-        public async Task<ActionResult> Put([FromRoute] int departmentID, [FromBody] UpdateDepartmentVM departmentVM)
+        [RequireIfMatch]
+        public async Task<IActionResult> Put([FromRoute] int departmentID, [FromBody] UpdateDepartmentVM departmentVM)
         {
-            await service.UpdateAsync(departmentID, departmentVM);
+            var token = ETagHelper.UnFormat(HttpContext.Request.Headers.IfMatch);
+            var result = await service.UpdateAsync(departmentID, departmentVM, token);
+            HttpContext.Response.Headers.ETag = ETagHelper.Format(result);
             return NoContent();
         }
 
         // DELETE: api/Departments/5
         [HttpDelete("{departmentID:int}")]
+        [RequireIfMatch]
         public async Task<ActionResult> Delete([FromRoute] int departmentID)
         {
-            await service.DeleteAsync(departmentID);
+            var token = ETagHelper.UnFormat(HttpContext.Request.Headers.IfMatch);
+            await service.DeleteAsync(departmentID, token);
             return NoContent();
         }
     }

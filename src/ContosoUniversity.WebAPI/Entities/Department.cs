@@ -1,4 +1,6 @@
-﻿namespace ContosoUniversity.WebAPI.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ContosoUniversity.WebAPI.Entities
 {
     public class Department
     {
@@ -8,6 +10,8 @@
         public DateTime StartDate { get; set; }
 
         public int? InstructorID { get; set; }
+
+        [Timestamp]
         public byte[] ConcurrencyToken { get; set; }
 
         public Instructor Administrator { get; set; }

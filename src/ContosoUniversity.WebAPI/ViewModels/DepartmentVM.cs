@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ContosoUniversity.WebAPI.ViewModels
 {
@@ -14,27 +15,26 @@ namespace ContosoUniversity.WebAPI.ViewModels
     {
         public int DepartmentID { get; set; }
         public string Administrator { get; set; }
-        public string Token { get; set; }
     }
 
     public class DepartmentDetailVM : DepartmentVMBase
     {
         public int DepartmentID { get; set; }
-        public int InstructorID { get; set; }
+        public int? InstructorID { get; set; }
         public string Administrator { get; set; }
+
+        [JsonIgnore]
         public string Token { get; set; }
         public List<string> Courses { get; set; }
     }
 
     public class CreateDepartmentVM : DepartmentVMBase
     {
-        public int InstructorID { get; set; }
+        public int? InstructorID { get; set; }
     }
 
     public class UpdateDepartmentVM : DepartmentVMBase
     {
-        public int DepartmentID { get; set; }
-        public int InstructorID { get; set; }
-        public string Token { get; set; }
+        public int? InstructorID { get; set; }
     }
 }
